@@ -12,4 +12,8 @@ func ResgisterAdminRoutes(r chi.Router) {
 		r.Get("/gamerecords", controllers.GameDetails)
 		r.Post("/addgame", controllers.AddNewGame)
 	})
+	r.Route("/api/auth/admin", func(r chi.Router) {
+		r.Post("/signup", controllers.AdminSignUp)
+		// r.Post("/signin", controllers.SignIn)
+	})
 }
