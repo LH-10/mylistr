@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 
 	_ "github.com/LH-10/mylistr/pkg/dbconfig"
@@ -24,8 +25,15 @@ func main() {
 	godotenv.Load(".env")
 
 	router := chi.NewRouter()
-	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
+	router.Use(
+		cors.Handler(cors.Options{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{"GET,POST,PUT"},
+			AllowedHeaders: []string{"*"},
+		}),
+	)
+	router.Use(middleware.Logger)
 	router.Get("/test", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Working"))
 	}))
