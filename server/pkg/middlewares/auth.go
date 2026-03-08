@@ -18,10 +18,10 @@ func Authenticate(next http.Handler) http.Handler {
 			authHeader := r.Header.Get("Authorization")
 			jwtToken := authHeader
 			token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (any, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("Invalid Signing Method %v", token.Header["alg"])
 				}
-				return os.Getenv("JWT-SECRET"), nil
+				return os.Getenv("JWT_SECRET"), nil
 			})
 			if err != nil {
 				log.Println(err)
