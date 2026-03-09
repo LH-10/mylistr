@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/LH-10/mylistr/pkg/roles"
 	"github.com/LH-10/mylistr/pkg/utils"
@@ -21,14 +22,21 @@ func (usr *User) SetAccessLevel(access_level int16) {
 }
 
 func (usr *User) CheckUserPassword() error {
-	stmt, err := db.PrepareNamed("Select * from User where id=:id")
+	stmt, err := db.PrepareNamed("Select * from users where email=:email")
 	if err != nil {
 		return err
 	}
+	var temp struct {
+		User
+		CreatedAt   time.Time `db:"created_at"`
+		AccessLevel int16     `db:"access_level"`
+	}
 	var stringpass = usr.Password
-	if err = stmt.Get(usr, usr); err != nil {
+	if err = stmt.Get(&temp, usr); err != nil {
 		return err
 	}
+	*usr = temp.User
+	usr.access_level = temp.AccessLevel
 	match := utils.CompareHash(stringpass, usr.Password)
 	if !match {
 		return fmt.Errorf("Incorrect Creds")
@@ -95,7 +103,7 @@ func (usr *User) IsAdmin() (bool, error) {
 }
 
 func (admin *User) GetGames(games *[]GameDetail) error {
-	rows, err := db.NamedQuery("Select * from game_details JOIN game_details.game_id = recorded_by.game_id JOIN recorded_by.admin_id=users.admin_id WHERE users.id=:id ", admin)
+	rows, err := db.NamedQuery("Select * from game_details JOIN game_details.game_id = recorded_by.game_id JOIN recorded_by.admin_id=users.id WHERE users.id=:id ", admin)
 	if err != nil {
 		log.Println(err)
 		return err

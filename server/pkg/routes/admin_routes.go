@@ -14,6 +14,6 @@ func ResgisterAdminRoutes(r chi.Router) {
 	})
 	r.Route("/api/auth/admin", func(r chi.Router) {
 		r.Post("/signup", controllers.AdminSignUp)
-		// r.Post("/signin", controllers.SignIn)
+		r.Post("/signin", controllers.SignIn)
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/LH-10/mylistr/pkg/models"
 	"github.com/LH-10/mylistr/pkg/roles"
@@ -42,19 +43,21 @@ func AdminSignUp(w http.ResponseWriter, r *http.Request) {
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	err := utils.ParseJson(r, user)
+	err := utils.ParseJson(r, &user)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Invalid Req body", http.StatusBadRequest)
+		return
 	}
 
 	err = user.CheckUserPassword()
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Incorrect Username or Password", http.StatusUnauthorized)
+		return
 	}
-	token := jwt.NewWithClaims(&jwt.SigningMethodECDSA{}, jwt.MapClaims{"token": user.ID})
-	tokenString, err := token.SignedString(os.Getenv("JWT_SECRET"))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": user.ID, "exp": &jwt.NumericDate{Time: time.Now().Add(time.Hour * 2).UTC()}})
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Error While Signing", http.StatusInternalServerError)
