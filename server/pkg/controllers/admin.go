@@ -9,9 +9,10 @@ import (
 )
 
 func GameDetails(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("user_id").(int64)
+	id, ok := r.Context().Value("jwtSubUser").(int64)
 	if !ok {
 		fmt.Println("Err invalid user_id type in jwt")
+		http.Error(w, "Error Processing thre request", http.StatusBadRequest)
 	}
 
 	var admin_user models.User
@@ -33,7 +34,7 @@ func GameDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddNewGame(w http.ResponseWriter, r *http.Request) {
-	id, ok := r.Context().Value("user_id").(int64)
+	id, ok := r.Context().Value("jwtSubUser").(int64)
 	if !ok {
 		fmt.Println("Err invalid user_id type in jwt")
 	}

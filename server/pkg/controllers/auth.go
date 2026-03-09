@@ -56,7 +56,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Incorrect Username or Password", http.StatusUnauthorized)
 		return
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"token": user.ID, "exp": &jwt.NumericDate{Time: time.Now().Add(time.Hour * 2).UTC()}})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": user.ID, "exp": &jwt.NumericDate{Time: time.Now().Add(time.Hour * 2).UTC()}})
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		fmt.Println(err)

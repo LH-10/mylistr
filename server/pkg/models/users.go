@@ -103,7 +103,7 @@ func (usr *User) IsAdmin() (bool, error) {
 }
 
 func (admin *User) GetGames(games *[]GameDetail) error {
-	rows, err := db.NamedQuery("Select * from game_details JOIN game_details.game_id = recorded_by.game_id JOIN recorded_by.admin_id=users.admin_id WHERE users.id=:id ", admin)
+	rows, err := db.NamedQuery("Select * from game_details JOIN game_details.game_id = recorded_by.game_id JOIN recorded_by.admin_id=users.id WHERE users.id=:id ", admin)
 	if err != nil {
 		log.Println(err)
 		return err
