@@ -29,7 +29,7 @@ func main() {
 	router.Use(
 		cors.Handler(cors.Options{
 			AllowedOrigins: []string{"*"},
-			AllowedMethods: []string{"GET,POST,PUT"},
+			AllowedMethods: []string{"GET", "POST", "PUT"},
 			AllowedHeaders: []string{"*"},
 		}),
 	)
