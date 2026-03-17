@@ -1,25 +1,57 @@
-import axios from "axios";
+import { createStore, unwrap } from "solid-js/store";
+import { axiosWithAuth as axios, checkAuthHeads } from "../../configs/axios_conf";
 import {  createEffect, createSignal } from "solid-js";
 
 export default function AddAdminGames(){
-    
-    const [gameTitle,setGameTitle]=createSignal<string>("")
-    const [gameRelease,setGameRelease]=createSignal<Date>((new Date()))
-    const [gameDevelopers,setGameDevelopers]=createSignal<string>("")
-    const [gamePublishers,setGamePublishers]=createSignal<string>("")
-    const [gameDescription,setGameDescription]=createSignal<string>("")
-    const [gameTags,setGameTags]=createSignal<string>("")
+    type Game ={
+        title: string;
+        release: Date;
+        developers: string;
+        publishers: string;
+        description: string;
+        tags: string;
+    }
+    // const [gameTitle,setGameTitle]=createSignal<string>("")
+    // const [gameRelease,setGameRelease]=createSignal<Date>((new Date()))
+    // const [gameDevelopers,setGameDevelopers]=createSignal<string>("")
+    // const [gamePublishers,setGamePublishers]=createSignal<string>("")
+    // const [gameDescription,setGameDescription]=createSignal<string>("")
+    // const [gameTags,setGameTags]=createSignal<string>("")
+    const [game,setGame]=createStore<Game>({
+            title: "",
+            release: (new Date()),
+            developers: "",
+            publishers: "",
+            description: "",
+            tags: ""
+    })
+
+    createEffect(()=>{
+        console.log(game.title)
+        console.log(game)
+    })
+
+    const updateStore=<K extends keyof Game>(field:K)=>(e:InputEvent&{
+        currentTarget: HTMLInputElement|HTMLTextAreaElement;
+        target: HTMLInputElement|HTMLTextAreaElement;
+    })=>{
+        let val:Game[K]
+       
+        val=e.target.value as Game[K]
+
+        setGame(field,val)
+    }
     let imageRef:HTMLInputElement|undefined
-  createEffect(()=>{
-    console.log("s:",gameRelease().toISOString().split('T')[0])
-})
+   
     const handleSubmit=async (e:SubmitEvent)=>{
         e.preventDefault()
         
         const adminEndpoint=import.meta.env.VITE_adminEndpoint
         try{
-            
-            const response=await axios.post(adminEndpoint+"/addgame",[])
+            if (!checkAuthHeads()){
+                throw Error("Auth header not present")
+            }
+            const response=await axios.post(adminEndpoint+"/addgame",unwrap(game))
             console.log(response)
         }
         catch(err){
@@ -39,8 +71,8 @@ export default function AddAdminGames(){
             <input
                 type="text"
                 name="title"
-                value={gameTitle()}
-                onInput={(e) => setGameTitle(e.currentTarget.value)}
+                value={game.title}
+                onInput={ updateStore("title")}
                 class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Game title"
                 // required
@@ -52,8 +84,10 @@ export default function AddAdminGames(){
             <input
                 type="date"
                 name="release"
-                value={gameRelease().toISOString().split('T')[0]}
-                onChange={(e) => setGameRelease(new Date(e.currentTarget.value))}
+                value={game.release.toISOString().split('T')[0]}
+                onChange={(e)=>{
+                    setGame("release",new Date(e.target.value))
+                }}
                 class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             </div>
@@ -64,8 +98,8 @@ export default function AddAdminGames(){
             <textarea
                 name="developers"
                 rows={3}
-                value={gameDevelopers()}
-                onInput={(e) => setGameDevelopers(e.currentTarget.value)}
+                value={game.developers}
+                onInput={updateStore("developers")}
                 class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
                 placeholder=""
             />
@@ -77,8 +111,8 @@ export default function AddAdminGames(){
             <textarea
                 name="publishers"
                 rows={3}
-                value={gamePublishers()}
-                onInput={(e) => setGamePublishers(e.currentTarget.value)}
+                value={game.publishers}
+                onInput={updateStore("publishers")}
                 class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
                 placeholder=""
             />
@@ -129,8 +163,8 @@ export default function AddAdminGames(){
             <textarea
                 name="description"
                 rows={5}
-                value={gameDescription()}
-                onInput={(e) => setGameDescription(e.currentTarget.value)}
+                value={game.description}
+                onInput={updateStore("description")}
                 class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
                 placeholder=""
             />
@@ -142,8 +176,8 @@ export default function AddAdminGames(){
             <textarea
                 name="tags"
                 rows={3}
-                value={gameTags()}
-                onInput={(e) => setGameTags(e.currentTarget.value)}
+                value={game.tags}
+                onInput={updateStore("tags")}
                 class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
                 placeholder="action , multiplayer , etc"
             />
