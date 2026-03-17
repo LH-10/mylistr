@@ -10,12 +10,12 @@ import (
 
 type GameDetail struct {
 	GameID      string    `db:"game_id"`
-	GameName    string    `db:"game_name"`
-	ReleaseDate time.Time `db:"relese_date"`
+	GameName    string    `db:"game_name" json:"title"`
+	ReleaseDate time.Time `db:"release_date" json:"release"`
 	Rating      int
-	Developer   []string
-	Publisher   []string
-	HeaderImage string `db:"header_image"`
+	Developer   []string `json:"developers"`
+	Publisher   []string `json:"publishers"`
+	HeaderImage string   `db:"header_image"`
 	Description string
 	Tags        []string
 }
