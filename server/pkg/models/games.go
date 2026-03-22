@@ -9,7 +9,7 @@ import (
 )
 
 type GameDetail struct {
-	GameID      string    `db:"game_id"`
+	GameID      int64     `db:"game_id"`
 	GameName    string    `db:"game_name" json:"title"`
 	ReleaseDate time.Time `db:"release_date" json:"release"`
 	Rating      int
@@ -43,20 +43,36 @@ func init() {
 	db.MustExec(schema)
 }
 
-func (gm *GameDetail) InsertData() (int, error) {
-	stmt, err := db.PrepareNamed("Insert INTO game_details(game_name,release_date,rating,header_image) VALUES(:game_name,:release_date,:rating,:header_image)")
+func (gm *GameDetail) InsertData(admin_id int64) (int64, error) {
+	tx, err := db.Beginx()
 	if err != nil {
 		fmt.Println(err)
 		return -1, err
 	}
-	effect, err := stmt.Exec(*gm)
+
+	defer tx.Rollback()
+	stmt, err := tx.PrepareNamed("Insert INTO game_details(game_name,release_date,rating,developer,publisher,description,tags,header_image) VALUES(:game_name,:release_date,:rating,:developer,:publisher,:description,:tags,:header_image) RETURNING game_id")
 	if err != nil {
 		fmt.Println(err)
 		return -1, err
 	}
-	effectid, err := effect.LastInsertId()
+	// stmt = tx.NamedStmt(stmt)
+	var effectid int64
+	err = stmt.QueryRow(*gm).Scan(&effectid)
 	if err != nil {
+		fmt.Println(err)
 		return -1, err
 	}
-	return int(effectid), nil
+
+	_, err = tx.Exec("Insert into admin_tracker(admin_id,game_id) values($1,$2)", admin_id, effectid)
+	if err != nil {
+		fmt.Println(err)
+		return -1, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return -1, err
+	}
+
+	return effectid, nil
 }
