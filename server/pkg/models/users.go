@@ -82,7 +82,7 @@ const adminTrackSchema = `
 	id      BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     admin_id BIGINT REFERENCES users(id),
     game_id  BIGINT REFERENCES game_details(game_id),
-    updated  TIMESTAMPTZ NOT NULL
+    updated  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 	);
 `
 
