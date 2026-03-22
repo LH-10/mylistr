@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,7 +24,6 @@ func GameDetails(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "access denied", http.StatusUnauthorized)
 		return
 	}
-
 	var games = []models.GameDetail{}
 	err = admin_user.GetGames(&games)
 	if err != nil {
@@ -49,18 +49,30 @@ func AddNewGame(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "access denied", http.StatusUnauthorized)
 		return
 	}
-
 	var game_data models.GameDetail
-	//parse json body
+
 	err = utils.ParseJson(r, &game_data)
-	gameid, err := game_data.InsertData()
+	fmt.Println(game_data)
+	gameid, err := game_data.InsertData(user.ID)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "DB error", http.StatusBadRequest)
 		return
 	}
 	fmt.Println(gameid)
-	// db.Query("Insert into recorded_by(admin_id,game_id) values(?,?)", id, gameid)
+	jsonObj, err := json.Marshal(struct {
+		Result string
+		Gameid int
+	}{Result: "success", Gameid: int(gameid)})
+	if err != nil {
+		http.Error(w, "Error while responding", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(jsonObj)
+	if err != nil {
+		http.Error(w, "Error while responding", http.StatusInternalServerError)
+	}
 }
 
 func EditGameDetails(w http.ResponseWriter, r *http.Request) {
