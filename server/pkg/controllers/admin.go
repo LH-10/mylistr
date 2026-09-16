@@ -50,9 +50,24 @@ func AddNewGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var game_data models.GameDetail
-
-	err = utils.ParseJson(r, &game_data)
+	err = r.ParseMultipartForm(10 * (1024 * 1024))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if r.MultipartForm != nil {
+		defer r.MultipartForm.RemoveAll()
+	}
+	file, file_header, err := r.FormFile("video")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Println(file_header.Filename)
+	go utils.SaveFile(file, file_header.Filename)
+	err = utils.ParseJsonString(r.FormValue("game_details"), &game_data)
 	fmt.Println(game_data)
+	game_data.HeaderImage = file_header.Filename
 	gameid, err := game_data.InsertData(user.ID)
 	if err != nil {
 		fmt.Println(err)

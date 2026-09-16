@@ -19,3 +19,15 @@ func ParseJson(r *http.Request, obj any) error {
 	}
 	return nil
 }
+
+func ParseJsonString(jsonString string, obj any) error {
+	var err error
+	body := []byte(jsonString)
+	err = json.Unmarshal(body, obj)
+	if err != nil {
+		fmt.Println("Json Parse Error")
+		return err
+	}
+
+	return nil
+}

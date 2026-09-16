@@ -15,7 +15,7 @@ function PopUp({
   return (
     <Show when={show()}>
       <div class="z-20 flex absolute w-full h-full left-0 top-0 justify-center items-center opacity-95 bg-gray-500 ">
-        <div class="z-20 flex flex-col px-4 py-3 justify-center gap-10 bg-orange-500">
+        <div class="z-20 flex flex-col px-4 w-full py-3 justify-center gap-10 bg-orange-500">
           <div>{JSON.stringify(data())}</div>
           <p class="text-white">Data has been recorded</p>
         </div>
@@ -31,6 +31,7 @@ export default function AddAdminGames() {
     publishers: string;
     description: string;
     tags: string;
+    tags_split?:string[] ;
   };
   // const [gameTitle,setGameTitle]=createSignal<string>("")
   // const [gameRelease,setGameRelease]=createSignal<Date>((new Date()))
@@ -84,7 +85,10 @@ export default function AddAdminGames() {
         tags: game.tags.split(","),
       };
       console.log(reqBody);
-      const response = await axios.post(adminEndpoint + "/addgame", reqBody);
+      const GameForm=new FormData()
+      GameForm.append("banner",imageRef?.files?.[0] ?? new Blob([]))
+      GameForm.append("game_details",JSON.stringify(reqBody))
+      const response = await axios.post(adminEndpoint + "/addgame", GameForm);
       if (response.data.Result == "success") {
         setResponseData(response.data);
         setGotResponse(true);
@@ -98,7 +102,7 @@ export default function AddAdminGames() {
     <>
       <form
         onSubmit={(e) => handleSubmit(e)}
-        class="flex flex-col bg-gray-50 px-10 py-8 gap-5 max-w-2xl mx-auto rounded-xl shadow-sm border border-gray-200"
+        class="flex flex-col bg-gray-100 px-20 py-8 gap-5 max-w-2xl mx-auto rounded-xl shadow-sm border border-gray-200"
       >
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Add New Game</h1>
 
@@ -110,7 +114,7 @@ export default function AddAdminGames() {
             name="title"
             value={game.title}
             onInput={updateStore("title")}
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="border border-gray-300 rounded-lg px-4 w-full py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             placeholder="Game title"
             // required
           />
@@ -125,7 +129,7 @@ export default function AddAdminGames() {
             onChange={(e) => {
               setGame("release", new Date(e.target.value));
             }}
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="border border-gray-300 rounded-lg bg-white px-4 w-full py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -139,7 +143,7 @@ export default function AddAdminGames() {
             rows={3}
             value={game.developers}
             onInput={updateStore("developers")}
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+            class="border border-gray-300 rounded-lg px-4 w-full py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
             placeholder=""
           />
         </div>
@@ -154,7 +158,7 @@ export default function AddAdminGames() {
             rows={3}
             value={game.publishers}
             onInput={updateStore("publishers")}
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+            class="border border-gray-300 rounded-lg px-4 w-full py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
             placeholder=""
           />
         </div>
@@ -168,10 +172,11 @@ export default function AddAdminGames() {
             name="image"
             accept="image/*"
             // onChange={handleImageChange}
-            class="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
+            class="block text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4 w-full
                     file:rounded-lg file:border-0
                     file:text-sm file:font-semibold
+                    bg-white
                     file:bg-indigo-50 file:text-indigo-700
                     hover:file:bg-indigo-100 cursor-pointer"
           />
@@ -206,7 +211,7 @@ export default function AddAdminGames() {
             rows={5}
             value={game.description}
             onInput={updateStore("description")}
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+            class="border border-gray-300 rounded-lg bg-white px-4 w-full py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
             placeholder=""
           />
         </div>
@@ -221,7 +226,7 @@ export default function AddAdminGames() {
             rows={3}
             value={game.tags}
             onInput={updateStore("tags")}
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+            class="border border-gray-300 rounded-lg bg-white  px-4 w-full py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
             placeholder="action , multiplayer , etc"
           />
         </div>
@@ -451,7 +456,7 @@ export default function AddAdminGames() {
 
 //   // ── Shared input classes ───────────────────────────────────────────────────
 //   const inputCls =
-//     "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition";
+//     "w-full border border-gray-200 rounded-xl px-4 w-full py-2.5 text-sm text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition";
 
 //   const labelCls =
 //     "block text-xs font-semibold tracking-widest text-gray-500 uppercase mb-1.5";
@@ -560,7 +565,7 @@ export default function AddAdminGames() {
 //               {/* Genre/Tags */}
 //               <div>
 //                 <label class={labelCls}>Genre / Tags</label>
-//                 <div class="border border-gray-200 rounded-xl bg-white px-4 py-3 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent transition">
+//                 <div class="border border-gray-200 rounded-xl bg-white px-4 w-full py-3 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent transition">
 //                   <For each={game.tags}>
 //                     {(tag) => (
 //                       <TagPill label={tag} onRemove={() => removeTag(tag)} />
@@ -626,7 +631,7 @@ export default function AddAdminGames() {
 //                 <Show
 //                   when={!selectedFile()}
 //                   fallback={
-//                     <div class="flex flex-col items-center gap-2 px-4 text-center">
+//                     <div class="flex flex-col items-center gap-2 px-4 w-full text-center">
 //                       <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
 //                         <svg
 //                           class="w-5 h-5 text-emerald-600"
