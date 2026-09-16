@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/LH-10/mylistr/pkg/models"
+	"github.com/LH-10/mylistr/pkg/utils"
 )
 
 func GameDetails(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +24,6 @@ func GameDetails(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "access denied", http.StatusUnauthorized)
 		return
 	}
-
 	var games = []models.GameDetail{}
 	err = admin_user.GetGames(&games)
 	if err != nil {
@@ -37,26 +38,56 @@ func AddNewGame(w http.ResponseWriter, r *http.Request) {
 	id, ok := r.Context().Value("jwtSubUser").(int64)
 	if !ok {
 		fmt.Println("Err invalid user_id type in jwt")
+		http.Error(w, "Invalid user id", http.StatusBadRequest)
+		return
 	}
 	var user models.User
 	user.ID = id
 	isadmin, err := user.IsAdmin()
 	if err != nil || !isadmin {
+		log.Println(err)
 		http.Error(w, "access denied", http.StatusUnauthorized)
 		return
 	}
-
 	var game_data models.GameDetail
-	//parse json body
-
-	gameid, err := game_data.InsertData()
+	err = r.ParseMultipartForm(10 * (1024 * 1024))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if r.MultipartForm != nil {
+		defer r.MultipartForm.RemoveAll()
+	}
+	file, file_header, err := r.FormFile("video")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Println(file_header.Filename)
+	go utils.SaveFile(file, file_header.Filename)
+	err = utils.ParseJsonString(r.FormValue("game_details"), &game_data)
+	fmt.Println(game_data)
+	game_data.HeaderImage = file_header.Filename
+	gameid, err := game_data.InsertData(user.ID)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "DB error", http.StatusBadRequest)
 		return
 	}
 	fmt.Println(gameid)
-	// db.Query("Insert into recorded_by(admin_id,game_id) values(?,?)", id, gameid)
+	jsonObj, err := json.Marshal(struct {
+		Result string
+		Gameid int
+	}{Result: "success", Gameid: int(gameid)})
+	if err != nil {
+		http.Error(w, "Error while responding", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(jsonObj)
+	if err != nil {
+		http.Error(w, "Error while responding", http.StatusInternalServerError)
+	}
 }
 
 func EditGameDetails(w http.ResponseWriter, r *http.Request) {

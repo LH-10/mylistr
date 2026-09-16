@@ -29,7 +29,7 @@ func main() {
 	router.Use(
 		cors.Handler(cors.Options{
 			AllowedOrigins: []string{"*"},
-			AllowedMethods: []string{"GET,POST,PUT"},
+			AllowedMethods: []string{"GET", "POST", "PUT"},
 			AllowedHeaders: []string{"*"},
 		}),
 	)
@@ -38,6 +38,7 @@ func main() {
 		w.Write([]byte("Working"))
 	}))
 	routes.ResgisterAdminRoutes(router)
+	mediaHandler(router)
 	addr := fmt.Sprintf("%s:%s", "localhost", *serverPort)
 	fmt.Println("Listening on port :", *serverPort)
 	log.Fatal(http.ListenAndServe(addr, router))

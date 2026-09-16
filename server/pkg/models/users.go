@@ -82,7 +82,7 @@ const adminTrackSchema = `
 	id      BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     admin_id BIGINT REFERENCES users(id),
     game_id  BIGINT REFERENCES game_details(game_id),
-    updated  TIMESTAMPTZ NOT NULL
+    updated  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 	);
 `
 
@@ -95,7 +95,12 @@ func InitUserSchema() {
 }
 
 func (usr *User) IsAdmin() (bool, error) {
-	err := db.Get(usr, `SELECT access_level from users where id=:id`, usr)
+	stmt, err := db.PrepareNamed(`SELECT access_level from users where id=:id`)
+	acc_lvl := struct {
+		Access_lvl int16 `db:"access_level"`
+	}{}
+	stmt.Get(&acc_lvl, *usr)
+	usr.access_level = acc_lvl.Access_lvl
 	if err != nil {
 		return false, err
 	}
