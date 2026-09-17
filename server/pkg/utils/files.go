@@ -7,7 +7,6 @@ import (
 )
 
 func SaveFile(image_file io.Reader, filename string) error {
-
 	file, err := os.Create(filename)
 	if err != nil {
 		fmt.Println(err)
