@@ -84,10 +84,10 @@ export default function AddAdminGames() {
         publishers: game.publishers.split(","),
         tags: game.tags.split(","),
       };
-      console.log(reqBody);
       const GameForm=new FormData()
       GameForm.append("banner",imageRef?.files?.[0] ?? new Blob([]))
       GameForm.append("game_details",JSON.stringify(reqBody))
+      console.log(FormData.toString());
       const response = await axios.post(adminEndpoint + "/addgame", GameForm);
       if (response.data.Result == "success") {
         setResponseData(response.data);
