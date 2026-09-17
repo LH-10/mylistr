@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path"
 
+	"github.com/LH-10/mylistr/pkg/directories"
 	"github.com/LH-10/mylistr/pkg/models"
 	"github.com/LH-10/mylistr/pkg/utils"
 )
@@ -58,16 +60,22 @@ func AddNewGame(w http.ResponseWriter, r *http.Request) {
 	if r.MultipartForm != nil {
 		defer r.MultipartForm.RemoveAll()
 	}
-	file, file_header, err := r.FormFile("video")
+	file, file_header, err := r.FormFile("banner")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	fmt.Println(file_header.Filename)
-	go utils.SaveFile(file, file_header.Filename)
+	filePath := path.Join(".", directories.Root, directories.Images, directories.GameDir, file_header.Filename)
+	fmt.Println("filepath", filePath)
+	go func() {
+		err = utils.SaveFile(file, filePath)
+		if err != nil {
+			fmt.Println("file save failed", filePath)
+		}
+	}()
 	err = utils.ParseJsonString(r.FormValue("game_details"), &game_data)
 	fmt.Println(game_data)
-	game_data.HeaderImage = file_header.Filename
+	game_data.HeaderImage = filePath
 	gameid, err := game_data.InsertData(user.ID)
 	if err != nil {
 		fmt.Println(err)
