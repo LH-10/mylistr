@@ -5,24 +5,7 @@ import {
 } from "../../configs/axios_conf";
 import { createEffect, createSignal, Show, type Accessor } from "solid-js";
 
-function PopUp({
-  show,
-  data,
-}: {
-  show: Accessor<boolean>;
-  data: Accessor<any>;
-}) {
-  return (
-    <Show when={show()}>
-      <div class="z-20 flex absolute w-full h-full left-0 top-0 justify-center items-center opacity-95 bg-gray-500 ">
-        <div class="z-20 flex flex-col px-4 w-full py-3 justify-center gap-10 bg-orange-500">
-          <div>{JSON.stringify(data())}</div>
-          <p class="text-white">Data has been recorded</p>
-        </div>
-      </div>
-    </Show>
-  );
-}
+
 export default function AddAdminGames() {
   type Game = {
     title: string;
@@ -238,17 +221,79 @@ export default function AddAdminGames() {
           Submit Game
         </button>
       </form>
-      <Show when={gotResponse()}>
-        <div
-          class="rounded-b-full absolute z-30 right-0 bg-red-500 top-0 w-20 h-20"
-          onClick={() => setGotResponse(false)}
-        ></div>
-      </Show>
-      <PopUp show={gotResponse} data={responseData} />
+      
+         <PopUp
+        show={gotResponse}
+        data={responseData}
+        onClose={() => setGotResponse(false)}
+      />
     </>
   );
 }
 
+function PopUp({
+  show,
+  data,
+  onClose,
+}: {
+  show: Accessor<boolean>;
+  data: Accessor<any>;
+  onClose: () => void;
+}) {
+  return (
+    <Show when={show() && data()}>
+      {/* Backdrop */}
+      <div
+        class="fixed inset-0 z-40 bg-black/30 flex items-center justify-center"
+        onClick={onClose}
+        >
+        {/* Card */}
+        <div
+          class="z-50 bg-white rounded-2xl shadow-2xl px-8 py-7 flex flex-col gap-4 min-w-[320px] max-w-sm"
+          onClick={(e) => e.stopPropagation()}
+          >
+          {/* Icon */}
+          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mx-auto">
+            <svg
+              class="w-6 h-6 text-emerald-600"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+              >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+                />
+            </svg>
+          </div>
+
+          <div class="text-center">
+            <h3 class="text-lg font-semibold text-gray-800">
+              Record Saved Successfully
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              The game entry has been recorded.
+            </p>
+          </div>
+
+          {/* Raw data preview */}
+          <pre class="bg-gray-50 rounded-lg p-3 text-base text-gray-600 max-h-32 overflow-auto border border-gray-200">
+            {JSON.stringify(data(), null, 2)}
+          </pre>
+
+          <button
+            onClick={onClose}
+            class="mt-1 w-full py-2.5 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 transition-colors"
+            >
+            Done
+          </button>
+        </div>
+      </div>
+    </Show>
+  );
+}
 // import { createStore, unwrap } from "solid-js/store";
 // import {
 //   axiosWithAuth as axios,
@@ -256,81 +301,17 @@ export default function AddAdminGames() {
 // } from "../../configs/axios_conf";
 // import { createEffect, createSignal, For, Show } from "solid-js";
 
-// // ── PopUp ──────────────────────────────────────────────────────────────────────
-// function PopUp({
-//   show,
-//   data,
-//   onClose,
-// }: {
-//   show: boolean;
-//   data: any;
-//   onClose: () => void;
-// }) {
-//   return (
-//     <Show when={show && data}>
-//       {/* Backdrop */}
-//       <div
-//         class="fixed inset-0 z-40 bg-black/30 flex items-center justify-center"
-//         onClick={onClose}
-//       >
-//         {/* Card */}
-//         <div
-//           class="z-50 bg-white rounded-2xl shadow-2xl px-8 py-7 flex flex-col gap-4 min-w-[320px] max-w-sm"
-//           onClick={(e) => e.stopPropagation()}
-//         >
-//           {/* Icon */}
-//           <div class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mx-auto">
-//             <svg
-//               class="w-6 h-6 text-emerald-600"
-//               fill="none"
-//               stroke="currentColor"
-//               stroke-width="2.5"
-//               viewBox="0 0 24 24"
-//             >
-//               <path
-//                 stroke-linecap="round"
-//                 stroke-linejoin="round"
-//                 d="M5 13l4 4L19 7"
-//               />
-//             </svg>
-//           </div>
-
-//           <div class="text-center">
-//             <h3 class="text-lg font-semibold text-gray-800">
-//               Record Saved Successfully
-//             </h3>
-//             <p class="text-sm text-gray-500 mt-1">
-//               The game entry has been recorded.
-//             </p>
-//           </div>
-
-//           {/* Raw data preview */}
-//           <pre class="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 max-h-32 overflow-auto border border-gray-200">
-//             {JSON.stringify(data, null, 2)}
-//           </pre>
-
-//           <button
-//             onClick={onClose}
-//             class="mt-1 w-full py-2.5 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 transition-colors"
-//           >
-//             Done
-//           </button>
-//         </div>
-//       </div>
-//     </Show>
-//   );
-// }
 
 // // ── Tag pill ───────────────────────────────────────────────────────────────────
 // function TagPill({ label, onRemove }: { label: string; onRemove: () => void }) {
 //   return (
-//     <span class="inline-flex items-center gap-1.5 bg-teal-700 text-white text-xs font-medium px-3 py-1.5 rounded-full">
-//       {label}
-//       <button
-//         type="button"
-//         onClick={onRemove}
-//         class="hover:text-teal-200 transition-colors leading-none"
-//         aria-label={`Remove ${label}`}
+  //     <span class="inline-flex items-center gap-1.5 bg-teal-700 text-white text-xs font-medium px-3 py-1.5 rounded-full">
+  //       {label}
+  //       <button
+  //         type="button"
+  //         onClick={onRemove}
+  //         class="hover:text-teal-200 transition-colors leading-none"
+  //         aria-label={`Remove ${label}`}
 //       >
 //         ×
 //       </button>
@@ -795,11 +776,11 @@ export default function AddAdminGames() {
 //       </form>
 
 //       {/* Success popup */}
-//       <PopUp
-//         show={gotResponse()}
-//         data={responseData()}
-//         onClose={() => setGotResponse(false)}
-//       />
-//     </>
+    //   <PopUp
+    //     show={gotResponse()}
+    //     data={responseData()}
+    //     onClose={() => setGotResponse(false)}
+    //   />
+    // </>
 //   );
 // }
