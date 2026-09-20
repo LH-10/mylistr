@@ -9,7 +9,7 @@ import (
 )
 
 func ResgisterMediaRoute(r chi.Router) {
-	const mediaRoute string = "/media/game/images"
-	var fileDir string = path.Join(".", directories.Root, directories.Images, directories.GameDir)
+	var mediaRoute string = directories.UsrGameImagePath()
+	var fileDir string = path.Join(directories.FSGameImagePath())
 	r.Handle(mediaRoute, http.StripPrefix(mediaRoute, http.FileServer(http.Dir(fileDir))))
 }
