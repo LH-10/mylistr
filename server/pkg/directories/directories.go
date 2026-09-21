@@ -32,7 +32,7 @@ func create_GameImageDir() {
 
 func init_ImagePath() {
 	f_GameImagePath = path.Join(".", Root, Images, GameDir)
-	user_GameImagePath = path.Join(u_root, GameDir, Images)
+	user_GameImagePath = path.Join("/", u_root, GameDir, Images)
 }
 
 func init() {
