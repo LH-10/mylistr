@@ -32,8 +32,14 @@ func GameDetails(w http.ResponseWriter, r *http.Request) {
 		log.Println("Err:", err)
 		http.Error(w, "Error During DB operation", http.StatusBadRequest)
 	}
-
-	fmt.Fprintf(w, "%v", games)
+	jsob, err := json.Marshal(games)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "wrong while fetching", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-type", "application/json")
+	w.Write(jsob)
 }
 
 func AddNewGame(w http.ResponseWriter, r *http.Request) {

@@ -156,12 +156,13 @@ export default function AddAdminGames() {
             accept="image/*"
             // onChange={handleImageChange}
             class="block text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4 w-full
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-semibold
-                    bg-white
-                    file:bg-indigo-50 file:text-indigo-700
-                    hover:file:bg-indigo-100 cursor-pointer"
+            file:mr-4 file:py-2 file:px-4 w-full
+            file:rounded-lg file:border-0
+            file:text-sm file:font-semibold
+            bg-white
+            file:bg-indigo-50 file:text-indigo-700
+            hover:file:bg-indigo-100 cursor-pointer"
+            // required
           />
 
           {/* <div class="flex items-center justify-center w-full">
