@@ -108,7 +108,11 @@ func (usr *User) IsAdmin() (bool, error) {
 }
 
 func (admin *User) GetGames(games *[]GameDetail) error {
-	rows, err := db.NamedQuery("Select * from game_details JOIN game_details.game_id = recorded_by.game_id JOIN recorded_by.admin_id=users.id WHERE users.id=:id ", admin)
+	rows, err := db.NamedQuery(`Select gdts.game_id as game_id , gdts.game_name as game_name , 
+								gdts.release_date as release_date , gdts.rating as rating , gdts.developer as developer,
+								gdts.publisher as publisher , gdts.header_image , gdts.description as description , 
+								gdts.tags as tags from game_details AS gdts JOIN admin_tracker AS atr ON gdts.game_id = atr.game_id 
+								JOIN users  ON atr.admin_id=users.id WHERE users.id=:id `, admin)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -116,8 +120,9 @@ func (admin *User) GetGames(games *[]GameDetail) error {
 	defer rows.Close()
 	var game GameDetail
 	for rows.Next() {
-
-		rows.Scan(&game)
+		rows.StructScan(&game)
+		// rows.Scan(&game)
+		fmt.Println(game)
 		*games = append(*games, game)
 	}
 	return nil

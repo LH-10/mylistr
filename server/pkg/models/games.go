@@ -9,15 +9,15 @@ import (
 )
 
 type GameDetail struct {
-	GameID      int64     `db:"game_id"`
+	GameID      int64     `db:"game_id" json:"id"`
 	GameName    string    `db:"game_name" json:"title"`
 	ReleaseDate time.Time `db:"release_date" json:"release"`
-	Rating      int
-	Developer   []string `json:"developers"`
-	Publisher   []string `json:"publishers"`
-	HeaderImage string   `db:"header_image"`
-	Description string
-	Tags        []string
+	Rating      int       `json:"rating"`
+	Developer   []string  `json:"developers"`
+	Publisher   []string  `json:"publishers"`
+	HeaderImage string    `db:"header_image" json:"banner"`
+	Description string    `json:"description"`
+	Tags        []string  `json:"tags"`
 }
 
 const schema = `
@@ -41,6 +41,23 @@ var db *sqlx.DB
 func init() {
 	db = dbconfig.GetDB()
 	db.MustExec(schema)
+}
+
+const GetGameRecord string = `Select * from game_details where id=:id`
+
+func (gm *GameDetail) GetRecord(admin_id int64) (int64, error) {
+	tx, err := db.Beginx()
+	if err != nil {
+		fmt.Println(err)
+		return -1, err
+	}
+	defer tx.Rollback()
+	err = tx.Get(gm, GetGameRecord)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return -1, err
+
 }
 
 func (gm *GameDetail) InsertData(admin_id int64) (int64, error) {
