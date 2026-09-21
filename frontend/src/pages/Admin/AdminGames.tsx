@@ -5,9 +5,10 @@ import EditGameImg from "../../assets/edit_game.svg"
 import DeleteGameImg from "../../assets/delete_game.svg"
 import { FiEdit } from "solid-icons/fi";
 import { TbTrash } from "solid-icons/tb";
-import { redirect, useNavigate } from "@solidjs/router";
+import { axiosWithAuth as axios } from "../../configs/axios_conf";
+import {  useNavigate } from "@solidjs/router";
 interface GameRecordsType {
-  name: string;
+  title: string;
   id: number;
 }
 
@@ -20,17 +21,16 @@ const [formName, setFormName] = createSignal("");
 
 // Simulated API fetch
 async function fetchGames(): Promise<GameRecordsType[]> {
-  return [
-    { id: 1, name: "Chess Masters" },
-    { id: 2, name: "Speed Racer" },
-    { id: 3, name: "Dungeon Quest" },
-  ];
+  const result=await axios.get(import.meta.env.VITE_adminEndpoint+"/gamerecords")
+  console.log(result.data)
+  return result.data
 }
 
 const GamesCreatedList = () => {
   onMount(async () => {
     const data = await fetchGames();
     setGameRecords(data);
+    console.log(data.length)
   });
 
   return (
@@ -42,11 +42,11 @@ const GamesCreatedList = () => {
             classList={{ "ring-2 ring-blue-500": selectedGame()?.id === gamerec.id }}
             onClick={() => {
               setSelectedGame(gamerec);
-              setFormName(gamerec.name);
+              setFormName(gamerec.title);
             }}
           >
             <span class="text-sm font-medium text-gray-700">#{gamerec.id}</span>
-            <span class="text-sm text-gray-900 flex-1 ml-4">{gamerec.name}</span>
+            <span class="text-sm text-gray-900 flex-1 ml-4">{gamerec.title}</span>
             <span class="text-xs text-gray-400">
               {selectedGame()?.id === gamerec.id ? "Selected" : ""}
             </span>
@@ -65,7 +65,7 @@ const AdminGames = () => {
     if (!formName().trim()) return;
     const newGame: GameRecordsType = {
         id: Date.now(),
-        name: formName().trim(),
+        title: formName().trim(),
       };
       setGameRecords((prev) => [...prev, newGame]);
       setFormName("");
@@ -116,7 +116,7 @@ const AdminGames = () => {
             </div>
             <img src={AddGameImg} height={60} width={220} class=""/>
           </div>
-          <div 
+          <button 
             disabled={!selectedGame()}
             onClick={() => { if (selectedGame()) setActionMode("edit"); }}
             class="px-6 py-5 text-sm font-medium bg-green-500 flex gap-y-5 flex-col justify-center items-center text-white rounded-lg hover:bg-green-600 transition"
@@ -126,8 +126,8 @@ const AdminGames = () => {
             <FiEdit size={20}/>
             </div>
             <img src={EditGameImg} height={60} width={220} class=""/>
-          </div>
-          <div 
+          </button>
+          <button 
             disabled={!selectedGame()}
             onClick={() => { if (selectedGame()) setActionMode("delete"); }}
             class="px-6 py-5 text-sm font-medium bg-yellow-400 flex gap-y-5 flex-col justify-center items-center text-white rounded-lg hover:bg-yellow-500 transition"
@@ -137,7 +137,7 @@ const AdminGames = () => {
             <TbTrash size={20}/>
             </div>
             <img src={DeleteGameImg} height={60} width={220} class=""/>
-          </div>
+          </button>
        
         </div>
 
@@ -179,7 +179,7 @@ const AdminGames = () => {
         {actionMode() === "delete" && selectedGame() && (
           <div class="flex items-center gap-3 mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
             <span class="text-sm text-red-700">
-              Delete <strong>{selectedGame()!.name}</strong>?
+              Delete <strong>{selectedGame()!.title}</strong>?
             </span>
             <button onClick={handleDelete} class="px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition">
               Confirm
