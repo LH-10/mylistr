@@ -3,8 +3,10 @@ package models
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/LH-10/mylistr/pkg/directories"
 	"github.com/LH-10/mylistr/pkg/roles"
 	"github.com/LH-10/mylistr/pkg/utils"
 )
@@ -109,8 +111,8 @@ func (usr *User) IsAdmin() (bool, error) {
 
 func (admin *User) GetGames(games *[]GameDetail) error {
 	rows, err := db.NamedQuery(`Select gdts.game_id as game_id , gdts.game_name as game_name , 
-								gdts.release_date as release_date , gdts.rating as rating , gdts.developer as developer,
-								gdts.publisher as publisher , gdts.header_image , gdts.description as description , 
+								gdts.release_date as release_date ,gdts.header_image as header_image, gdts.rating as rating , gdts.developer as developer,
+								gdts.publisher as publisher ,  gdts.description as description , 
 								gdts.tags as tags from game_details AS gdts JOIN admin_tracker AS atr ON gdts.game_id = atr.game_id 
 								JOIN users  ON atr.admin_id=users.id WHERE users.id=:id `, admin)
 	if err != nil {
@@ -122,6 +124,9 @@ func (admin *User) GetGames(games *[]GameDetail) error {
 	for rows.Next() {
 		rows.StructScan(&game)
 		// rows.Scan(&game)
+
+		fmt.Println("Header", game.HeaderImage)
+		game.HeaderImage = strings.Replace(game.HeaderImage, directories.FSGameImagePath(), directories.UsrGameImagePath(), 1)
 		fmt.Println(game)
 		*games = append(*games, game)
 	}
