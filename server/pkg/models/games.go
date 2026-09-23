@@ -27,11 +27,11 @@ CREATE TABLE IF NOT EXISTS game_details (
 	game_name VARCHAR(255),
 	release_date TIMESTAMPTZ,
 	rating VARCHAR(255),
-	developer VARCHAR(255)[],
-	publisher VARCHAR(255)[],
+	developer text[],
+	publisher text[],
 	header_image VARCHAR,
 	description TEXT,
-	tags VARCHAR(255)[]
+	tags text[]
 	);
 
 `
