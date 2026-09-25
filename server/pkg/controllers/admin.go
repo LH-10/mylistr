@@ -10,6 +10,7 @@ import (
 	"github.com/LH-10/mylistr/pkg/directories"
 	"github.com/LH-10/mylistr/pkg/models"
 	"github.com/LH-10/mylistr/pkg/utils"
+	"github.com/go-chi/chi/v5"
 )
 
 func GameDetails(w http.ResponseWriter, r *http.Request) {
@@ -32,14 +33,8 @@ func GameDetails(w http.ResponseWriter, r *http.Request) {
 		log.Println("Err:", err)
 		http.Error(w, "Error During DB operation", http.StatusBadRequest)
 	}
-	jsob, err := json.Marshal(games)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "wrong while fetching", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-type", "application/json")
-	w.Write(jsob)
+
+	makeResponseJson(w, games)
 }
 
 func AddNewGame(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +97,10 @@ func AddNewGame(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Error while responding", http.StatusInternalServerError)
 	}
+}
+
+func RetrieveGameRecord(w http.ResponseWriter, r *http.Request) {
+	chi.URLParam(r, "id")
 }
 
 func EditGameDetails(w http.ResponseWriter, r *http.Request) {
