@@ -6,18 +6,19 @@ import (
 
 	"github.com/LH-10/mylistr/pkg/dbconfig"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type GameDetail struct {
-	GameID      int64     `db:"game_id" json:"id"`
-	GameName    string    `db:"game_name" json:"title"`
-	ReleaseDate time.Time `db:"release_date" json:"release"`
-	Rating      int       `json:"rating"`
-	Developer   []string  `json:"developers"`
-	Publisher   []string  `json:"publishers"`
-	HeaderImage string    `db:"header_image" json:"banner"`
-	Description string    `json:"description"`
-	Tags        []string  `json:"tags"`
+	GameID      int64          `db:"game_id" json:"id"`
+	GameName    string         `db:"game_name" json:"title"`
+	ReleaseDate time.Time      `db:"release_date" json:"release"`
+	Rating      int            `json:"rating"`
+	Developer   pq.StringArray `db:"developer" json:"developers"`
+	Publisher   pq.StringArray `json:"publishers"`
+	HeaderImage string         `db:"header_image" json:"banner"`
+	Description string         `json:"description"`
+	Tags        pq.StringArray `json:"tags"`
 }
 
 const schema = `
@@ -27,11 +28,11 @@ CREATE TABLE IF NOT EXISTS game_details (
 	game_name VARCHAR(255),
 	release_date TIMESTAMPTZ,
 	rating VARCHAR(255),
-	developer VARCHAR(255)[],
-	publisher VARCHAR(255)[],
+	developer text[],
+	publisher text[],
 	header_image VARCHAR,
 	description TEXT,
-	tags VARCHAR(255)[]
+	tags text[]
 	);
 
 `
